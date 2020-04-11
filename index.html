@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>React II (хуки)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="./core.css">
+    <link rel="stylesheet" href="./theme.css">
+    <link rel="stylesheet" href="./index.css">
+    <link rel="icon" href="./favicon.png" />
+    <style>
+        .reveal .object-fit-fill.slide-background[data-background-size=contain] video {
+            object-fit: fill !important;
+        }
+
+        .slide-flex {
+            display: flex !important;
+        }
+    </style>
+</head>
+<body class="white"><div class="reveal"><span class="slides">
+    <section class="center title-slide">
+        <h1>React II (хуки)</h1>
+        <br />
+        <p><span class="red">Т</span>ощилин Сергей</p>
+    </section>
+
+    <section class="center little">
+        <h2>Хуки — специальные функции в React</h2>
+        <ul>
+            <li>Доступны для использования в <i>функциональных компонентах</i></li>
+            <li>Добавляют возможность управлять состоянием компонента</li>
+            <li>Предоставляют возможность выполнить некоторые привычные действия для компонента-класса</li>
+            <li>Позволяют “прицепить“ выполнение некоторого кода к жизненному циклу компонента</li>
+            <li style="color: #999;">Обязательно прочитайте документацию, она небольшая, но крутая (ссылка в конце)</li>
+        </ul>
+    </section>
+
+    <section class="center">
+        <h2>Встроенные в React хуки (10 штук)</h2>
+        <ul>
+            <li>useState</li>
+            <li>useRef</li>
+            <li>useContext</li>
+            <li>useEffect</li>
+            <li>useMemo</li>
+            <li>useCallback</li>
+            <li>...</li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useState</h2>
+        <ul style="font-size: 42px;">
+            <li>
+                Добавляет функциональному компоненту состояние
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 24px;">
+                    import React, { useState } from 'react';
+                    ...
+
+                    const AnyComponent = () => {
+                        const [state, setState] = useState&lt;<span class="hljs-name">any</span>>(initialState);
+                    }
+                </code></pre>
+            </li>
+            <li class="fragment">Любые изменения state принудительно вызывают ререндер</li>
+            <li class="fragment">Может быть несколько в одном компоненте</li>
+            <li class="fragment">Лучше делать более атомарными (чтобы избежать ненужных перерисовок)</li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useRef</h2>
+        <ul style="font-size: 36px;">
+            <li>
+                Добавляет переменную, которая хранит нереактивную ссылку на узел
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 24px;">
+                    import React, { useRef } from 'react';
+                    ...
+
+                    const AnyComponent = () => {
+                        const ref = useRef&lt;<span class="hljs-name">HTMLFormElement</span>>(null);
+
+                        const onSubmit = () => {
+                            ref.current.submit();
+                        };
+
+                        return (
+                            &lt;form ref={ref}>...&lt;/form>
+                        )
+                    }
+                </code></pre>
+            </li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useRef</h2>
+        <ul style="font-size: 36px;">
+            <li>
+                Работает точно так же, как и ref в компонентах-классах
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 24px;">
+                    <span style="opacity: .3">import React, { useRef } from 'react';
+                    ...
+
+                    const AnyComponent = () => {
+                        </span>const ref = useRef&lt;<span class="hljs-name">HTMLFormElement</span>>(null);<span style="opacity: .3">
+
+                        const onSubmit = () => {
+                            </span>ref.current.submit();<span style="opacity: .3">
+                        };
+
+                        return (
+                            &lt;form </span>ref={ref}<span style="opacity: .3">>...&lt;/form>
+                        )
+                    }</span>
+                </code></pre>
+            </li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useContext</h2>
+        <ul style="font-size: 42px;">
+            <li>
+                Декларирует способ использовая контекста в функциональных компонентах
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 24px;">
+                    import React, { useContext } from 'react';
+                    ...
+
+                    const AnyComponent = () => {
+                        const myContext = useContext(MyContext);
+                    }
+                </code></pre>
+            </li>
+            <li class="fragment">Позволяет использовать несколько контекстов не вызывая лишних вложенностей</li>
+            <li class="fragment">Значения, которые предоставлены в компонент, реактивные</li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useMemo</h2>
+        <ul style="font-size: 36px;">
+            <li>
+                Добавляет возможность мемоизировать какие-то значения
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 22px;">
+                    import React, { useMemo } from 'react';
+                    ...
+
+                    const AnyComponent = (...) => {
+                        ...
+                        const value = useMemo(
+                            () => calculateAnyValue(props.a, state.b),
+                            [props.a, state.b]
+                        );
+                        ...
+                    }
+                </code></pre>
+            </li>
+            <li class="fragment">Позволяет явно сказать реакту, когда не требуется пересчитывать значение</li>
+            <li class="fragment">Запускается во время рендера и не должен содержать side-effect</li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useMemo</h2>
+        <ul style="font-size: 36px;">
+            <li>
+                Принимает 2 аргумента: функцию и массив зависимостей
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 22px;">
+                    import React, { useMemo } from 'react';
+                    ...
+
+                    const AnyComponent = (...) => {
+                        ...
+                        const value = useMemo(
+                            () => calculateAnyValue(props.a, state.b),
+                            [props.a, state.b]
+                        );
+                        ...
+                    }
+                </code></pre>
+            </li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useMemo</h2>
+        <ul style="font-size: 36px;">
+            <li>
+                <span style="opacity: .3">Принимает 2 аргумента: </span>функцию <span style="opacity: .3">и массив зависимостей</span>
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 22px;">
+                    <span style="opacity: .3">import React, { useMemo } from 'react';
+                    ...
+
+                    const AnyComponent = (...) => {
+                        ...
+                        const value = useMemo(
+                            </span>() => calculateAnyValue(props.a, state.b),<span style="opacity: .3">
+                            [props.a, state.b]
+                        );
+                        ...
+                    }</span>
+                </code></pre>
+            </li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useMemo</h2>
+        <ul style="font-size: 36px;">
+            <li>
+                <span style="opacity: .3">Принимает 2 аргумента: функцию и </span>массив зависимостей
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 22px;">
+                    <span style="opacity: .3">import React, { useMemo } from 'react';
+                    ...
+
+                    const AnyComponent = (...) => {
+                        ...
+                        const value = useMemo(
+                            () => calculateAnyValue(props.a, state.b),
+                            </span>[props.a, state.b]<span style="opacity: .3">
+                        );
+                        ...
+                    }</span>
+                </code></pre>
+            </li>
+            <li class="fragment">Все, что используется в функции, нужно передавать в массив зависимостей</li>
+            <li class="fragment">Поставьте <span class="hljs-name">eslint-plugin-react-hooks</span>. Он предупредит, когда зависимости будут указаны неправильно и предложит исправление.</li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useCallback</h2>
+        <ul style="font-size: 36px;">
+            <li>
+                Добавляет возможность мемоизировать обработчики
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 22px;">
+                    import React, { useCallback } from 'react';
+                    ...
+
+                    type EventType = FormEvent&lt;<span class="hljs-name">HTMLFormElement</span>> | KeyboardEvent;
+
+                    const AnyComponent = ({ name }: Props) => {
+                        ...
+                        const value = useCallback(
+                            (e: EventType) => sendParams(name, e.target.value),
+                            [name]
+                        );
+                        ...
+                    }
+                </code></pre>
+            </li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useCallback</h2>
+        <ul style="font-size: 36px;">
+            <li>
+                Добавляет возможность мемоизировать обработчики
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 22px;">
+                    const value = useCallback(
+                        (e: EventType) => sendParams(name, e.target.value),
+                        [name]
+                    );
+                </code></pre>
+            </li>
+            <li class="fragment">Пересчитывается только при изменении зависимостей</li>
+            <li class="fragment">Все, что используется внутри, нужно передать</li>
+            <li class="fragment">Поставьте плагин :)</li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useEffect</h2>
+        <ul style="font-size: 42px;">
+            <li>
+                Декларирует способ выполнять что-то в различных стадиях жизненного цикла
+                <pre><code class="language-typescript" data-noescape data-trim style="font-size: 24px;">
+                    import React, { useEffect } from 'react';
+                    ...
+
+                    const AnyComponent = () => {
+                        useEffect(
+                            () => {
+                                ...
+                            },
+                            []
+                        );
+                    }
+                </code></pre>
+            </li>
+            <li class="fragment">Основное предназначение: выполнение side-effect</li>
+        </ul>
+    </section>
+
+    <section class="center little">
+        <h2>useEffect</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 24px;">
+            import React, { useEffect } from 'react';
+            ...
+
+            const AnyComponent = ({ pageName, ... }: Props) => {
+                useEffect(
+                    () => {
+                        fetchAnyData(pageName);
+                    }
+                );
+            }
+        </code></pre>
+        <div style="font-size: 36px;" class="fragment">Если не передать массив зависимостей, будет выполняться при каждом рендере</li>
+    </section>
+
+    <section class="center little">
+        <h2>useEffect</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 24px;">
+            import React, { useEffect } from 'react';
+            ...
+
+            const AnyComponent = ({ pageName, ... }: Props) => {
+                useEffect(
+                    () => {
+                        fetchAnyData(pageName);
+                    },
+                    []
+                );
+            }
+        </code></pre>
+        <div style="font-size: 36px;" class="fragment">Если передать пустой массив зависимостей, выполнится после только первого рендера (componentDidMount)</div>
+    </section>
+
+    <section class="center little">
+        <h2>useEffect</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 20px;">
+            const AnyComponent = () => {
+                useEffect(
+                    () => {
+                        const keyPressHandler = () => {
+                            ...
+                        };
+
+                        document.addEventListener('keypress', keyPressHandler);
+
+                        return () => {
+                            document.removeEventListener('keypress', keyPressHandler);
+                        }
+                    },
+                    []
+                );
+            }
+        </code></pre>
+        <div style="font-size: 32px;" class="fragment">Можно вернуть функцию, которая будет выполнена при размонтировании компонента</div>
+    </section>
+
+    <section class="center little">
+        <h2>useEffect</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 20px;">
+            const AnyComponent = ({ ... }: Props) => {
+                useEffect(
+                    () => {
+                        const keyPressHandler = () => {
+                            ... // использует anyValue
+                        };
+
+                        document.addEventListener('keypress', keyPressHandler);
+
+                        return () => {
+                            document.removeEventListener('keypress', keyPressHandler);
+                        }
+                    },
+                    [props.anyValue]
+                );
+            }
+        </code></pre>
+        <div style="font-size: 32px;" class="fragment">Зависимости работают точно так же, как и в useCallback, useMemo</div>
+    </section>
+
+    <section class="little">
+        <h2>Хуки</h2>
+        <ul style="font-size: 0.8em;">
+            <li class="fragment">По соглашению именуются с "use" в начале</li>
+            <li class="fragment">Полагаются на порядок своего выполнения (нельзя вызывать условно или в цикле)</li>
+            <li class="fragment">Сильно сокращают количество кода и вложенность</li>
+            <li class="fragment">Делают компонент более императивным</li>
+            <li class="fragment">Можно написать свой хук, оборачивая чужой хук (увидим на следующей лекции)</li>
+            <li class="fragment">React имеет несколько встроенных хуков</li>
+            <li class="fragment">Большинство популярных библиотек для реакта предоставляют наружу, в частности, хуки</li>
+            <li class="fragment">Отличная документация и официальный плагин для eslint</li>
+        </ul>
+    </section>
+
+    <section class="little">
+        <h2>Ссылки</h2>
+        <ul style="font-size: .8em;">
+            <li><a href="https://ru.reactjs.org/docs/hooks-intro.html">Документация</a></li>
+            <li><a href="https://www.npmjs.com/package/eslint-plugin-react-hooks">Плагин для eslint</a></li>
+        </ul>
+    </section>
+
+    <section class="center title-slide">
+        <h1>Вопросы?</h1>
+    </section>
+</div></div>
+
+<script src="./core.js"></script>
+</body>
+</html>
+</html>
