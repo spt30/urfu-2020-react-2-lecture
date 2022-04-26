@@ -375,6 +375,153 @@
         </code></pre>
         <div style="font-size: 32px;" class="fragment">Зависимости работают точно так же, как и в useCallback, useMemo</div>
     </section>
+    
+    <section class="little">
+        <h2>Собственные хуки</h2>
+        <ul style="font-size: 0.8em;">
+            <li class="fragment">Точно так же именуются с "use" в начале (так линтер и реакт понимают, что это хук)</li>
+            <li class="fragment">Внутри себя используют реакт-хуки или другие кастомные хуки</li>
+            <li class="fragment">В них можно либо инкапсулировать какую-то бизнес логику; тогда это будет хук, который предназначен для одного конкретного места</li>
+            <li class="fragment">Либо положить какой-то частый паттерн использования реакт-хуков; тогда это можно вынести в хэлперы и переиспользовать</li>
+        </ul>
+    </section>
+    
+    <section class="center little">
+        <h2>Напишем собственный хук</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 24px;">
+            const useToggle = initialValue => {
+                const [value, setValue] = useState(initialValue);
+                
+                const toggle = useCallback(
+                    () => setValue(value => !value),
+                    []
+                )
+                
+                return [value, toggle];
+            }
+        </code></pre>
+    </section>
+    
+    <section class="center little">
+        <h2>Напишем собственный хук</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 24px;">
+            <span style="opacity: .3">const useToggle = initialValue => {
+                const [value, setValue] = useState(initialValue);
+                
+                const toggle = useCallback(
+                    () => setValue(value => !value),
+                    []
+                )
+                
+                </span>return [value, toggle];<span style="opacity: .3">
+            }</span>
+        </code></pre>
+        <div style="font-size: 32px;">Возвращаем так же массивом:</div>
+        <ul style="font-size: 0.8em;">
+            <li>Во-первых, это интуитивнее по аналогии с useState</li>
+            <li>Во-вторых, можно переименовать по назначению при использовании</li>
+        </ul>
+    </section>
+    
+    <section class="center little">
+        <h2>Напишем собственный хук</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 24px;">
+            <span style="opacity: .3">const useToggle = initialValue => {
+                const [value, setValue] = useState(initialValue);
+                
+                const toggle = useCallback(
+                    () => </span>setValue(value => !value)<span style="opacity: .3">,
+                    []
+                )
+                
+                return [value, toggle];
+            }</span>
+        </code></pre>
+        <div style="font-size: 32px;">Используем вариант через колбэк, потому что ссылаемся на предыдущее значение</div>
+    </section>
+    
+    <section class="center little">
+        <h2 style="font-size: 44px;">В собственные хуки можно засунуть много всего</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 20px;">
+            const useSearch({ items, searchKey }) => {
+                const [searchValue, setSearchValue] = useState('');
+            
+                const onChangeSearch = debounce(setSearchValue, 300);
+            
+                const filteredItems = useMemo(
+                    () => items.filter(
+                        item => item[searchKey].includes(searchValue)
+                    ),
+                    [items, searchValue, searchKey]
+                );
+            
+                return { searchValue, onChangeSearch, filteredItems };
+            }
+        </code></pre>
+    </section>
+    
+    <section class="center little">
+        <h2 style="font-size: 44px;">В собственные хуки можно засунуть много всего</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 20px;">
+            <span style="opacity: .3">const useSearch({ items, searchKey }) => {
+                const [searchValue, setSearchValue] = useState('');
+            
+                const onChangeSearch = debounce(setSearchValue, 300);
+            
+                const filteredItems = useMemo(
+                    () => items.filter(
+                        item => item[searchKey].includes(searchValue)
+                    ),
+                    [items, searchValue, searchKey]
+                );
+            
+                </span>return { searchValue, onChangeSearch, filteredItems };<span style="opacity: .3">
+            }</span>
+        </code></pre>
+        <div style="font-size: 32px;">Здесь уже возвращаем объектом, потому что порядок неочевиден</div>
+    </section>
+    
+    <section class="center little">
+        <h2 style="font-size: 44px;">В собственные хуки можно засунуть много всего</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 20px;">
+            <span style="opacity: .3">const useSearch({ items, searchKey }) => {
+                const [searchValue, setSearchValue] = useState('');
+            
+                const onChangeSearch = debounce(setSearchValue, 300);
+            
+                const filteredItems = useMemo(
+                    () => items.filter(
+                        item => item[searchKey].includes(searchValue)
+                    ),
+                    [items, searchValue, searchKey]
+                );
+            
+                return { </span>searchValue, onChangeSearch<span style="opacity: .3">, filteredItems };
+            }</span>
+        </code></pre>
+        <div style="font-size: 32px;">Обработчики для нашего input'а</div>
+    </section>
+    
+    <section class="center little">
+        <h2 style="font-size: 44px;">В собственные хуки можно засунуть много всего</h2>
+        <pre><code class="language-typescript" data-noescape data-trim style="font-size: 20px;">
+            <span style="opacity: .3">const useSearch(</span>{ items, searchKey }<span style="opacity: .3">) => {
+                const [</span>searchValue<span style="opacity: .3">, setSearchValue] = useState('');
+            
+                const onChangeSearch = debounce(setSearchValue, 300);
+            
+                const filteredItems = useMemo(
+                    () => </span>items.filter(
+                        item => item[searchKey].includes(searchValue)
+                    )<span style="opacity: .3">,
+                    [items, searchValue, searchKey]
+                );
+            
+                return { searchValue, onChangeSearch, </span>filteredItems<span style="opacity: .3"> };
+            }</span>
+        </code></pre>
+        <div style="font-size: 32px;">Фильтруем элементы по значению из input</div>
+    </section>
 
     <section class="little">
         <h2>Хуки</h2>
@@ -383,9 +530,9 @@
             <li class="fragment">Полагаются на порядок своего выполнения (нельзя вызывать условно или в цикле)</li>
             <li class="fragment">Сильно сокращают количество кода и вложенность</li>
             <li class="fragment">Делают компонент более императивным</li>
-            <li class="fragment">Можно написать свой хук, оборачивая чужой хук (увидим на следующей лекции)</li>
             <li class="fragment">React имеет несколько встроенных хуков</li>
             <li class="fragment">Большинство популярных библиотек для реакта предоставляют наружу, в частности, хуки</li>
+            <li class="fragment">При необходимости легко написать свой хук, спрятав в него некоторую часть логики</li>
             <li class="fragment">Отличная документация и официальный плагин для eslint</li>
         </ul>
     </section>
